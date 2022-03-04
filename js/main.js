@@ -1,35 +1,10 @@
-/* eslint-disable no-await-in-loop */
-const url = "https://swapi.dev/api/starships";
+// eslint-disable-next-line import/extensions
+import getAllStarShips from "./fetchUtils.js";
 
 const totalStarships = document.querySelector("#total-ships");
 const starShipsClasses = document.querySelector("#class-list");
 
 const toHtml = (name, count) => `<p>${name}: ${count}</p>`;
-
-const fetchAPI = async (toFetchurl) => {
-  const response = await fetch(toFetchurl);
-  const { count, results, next } = await response.json();
-
-  return { count, results, next };
-};
-
-const getAllStarShips = async () => {
-  const currentStarships = [];
-  let count;
-  let currentUrl = url;
-
-  let results = await fetchAPI(currentUrl);
-  currentStarships.push(...results.results);
-  count = results.count;
-
-  while (results.next) {
-    currentUrl = results.next;
-    results = await fetchAPI(currentUrl);
-    currentStarships.push(...results.results);
-    count = results.count;
-  }
-  return { starships: currentStarships, count };
-};
 
 (async () => {
   const { starships, count } = await getAllStarShips();
@@ -42,12 +17,14 @@ const getAllStarShips = async () => {
 
     let classExists = false;
 
-    starshipClasses.forEach((starClass) => {
+    starshipClasses.map((starClass) => {
+      const newStarship = { ...starClass };
+
       if (starClass.name === starshipClass) {
-        // eslint-disable-next-line no-param-reassign
-        starClass.shipCount += 1;
+        newStarship.shipCount += 1;
         classExists = true;
       }
+      return newStarship;
     });
 
     if (!classExists) {
