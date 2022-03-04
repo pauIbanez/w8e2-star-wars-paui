@@ -10,27 +10,28 @@ const toHtml = (name, count) => `<p>${name}: ${count}</p>`;
   const { starships, count } = await getAllStarShips();
   totalStarships.textContent += ` ${count}`;
 
-  const starshipClasses = [];
+  let starshipClasses = [];
 
   starships.forEach((starship) => {
     const starshipClass = starship.starship_class;
 
     let classExists = false;
 
-    starshipClasses.map((starClass) => {
-      const newStarship = { ...starClass };
-
-      if (starClass.name === starshipClass) {
-        newStarship.shipCount += 1;
+    const newStarships = starshipClasses.map(({ name, shipCount }) => {
+      if (name.toLowerCase() === starshipClass.toLowerCase()) {
         classExists = true;
-      }
+        const newShipCount = shipCount + 1;
 
-      return newStarship;
+        return { name, shipCount: newShipCount };
+      }
+      return { name, shipCount };
     });
+
+    starshipClasses = [...newStarships];
 
     if (!classExists) {
       starshipClasses.push({
-        name: starshipClass,
+        name: starshipClass[0].toUpperCase() + starshipClass.substring(1),
         shipCount: 1,
       });
     }
