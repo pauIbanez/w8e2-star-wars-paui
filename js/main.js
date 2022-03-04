@@ -24,6 +24,7 @@ const toHtml = (name, count) => `<p>${name}: ${count}</p>`;
         newStarship.shipCount += 1;
         classExists = true;
       }
+
       return newStarship;
     });
 
