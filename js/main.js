@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 const url = "https://swapi.dev/api/starships";
 
 const totalStarships = document.querySelector("#total-ships");
@@ -12,28 +13,31 @@ const fetchAPI = async (toFetchurl) => {
   return { count, results, next };
 };
 
-const currentStarships = [];
-let count;
-let currentUrl = url;
-
 const getAllStarShips = async () => {
-  const results = await fetchAPI(currentUrl);
+  const currentStarships = [];
+  let count;
+  let currentUrl = url;
+
+  let results = await fetchAPI(currentUrl);
   currentStarships.push(...results.results);
   count = results.count;
 
-  if (results.next) {
+  while (results.next) {
     currentUrl = results.next;
-    await getAllStarShips();
+    results = await fetchAPI(currentUrl);
+    currentStarships.push(...results.results);
+    count = results.count;
   }
+  return { starships: currentStarships, count };
 };
 
 (async () => {
-  await getAllStarShips();
+  const { starships, count } = await getAllStarShips();
   totalStarships.textContent += ` ${count}`;
 
   const starshipClasses = [];
 
-  currentStarships.forEach((starship) => {
+  starships.forEach((starship) => {
     const starshipClass = starship.starship_class;
 
     let classExists = false;
