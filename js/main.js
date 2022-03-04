@@ -5,15 +5,35 @@ const starShipsClasses = document.querySelector("#class-list");
 
 const toHtml = (name, count) => `<p>${name}: ${count}</p>`;
 
-(async () => {
-  const response = await fetch(url);
-  const { count, results } = await response.json();
+const fetchAPI = async (toFetchurl) => {
+  const response = await fetch(toFetchurl);
+  const { count, results, next } = await response.json();
 
+  return { count, results, next };
+};
+
+const currentStarships = [];
+let count;
+let currentUrl = url;
+
+const getAllStarShips = async () => {
+  const results = await fetchAPI(currentUrl);
+  currentStarships.push(...results.results);
+  count = results.count;
+
+  if (results.next) {
+    currentUrl = results.next;
+    await getAllStarShips();
+  }
+};
+
+(async () => {
+  await getAllStarShips();
   totalStarships.textContent += ` ${count}`;
 
   const starshipClasses = [];
 
-  results.forEach((starship) => {
+  currentStarships.forEach((starship) => {
     const starshipClass = starship.starship_class;
 
     let classExists = false;
@@ -34,7 +54,17 @@ const toHtml = (name, count) => `<p>${name}: ${count}</p>`;
     }
   });
 
-  starshipClasses.forEach(({ name, shipCount }) => {
+  const sortedStarClasses = starshipClasses.sort((classOne, classTwo) => {
+    if (classOne.name < classTwo.name) {
+      return -1;
+    }
+    if (classOne.name > classTwo.name) {
+      return 1;
+    }
+    return 0;
+  });
+
+  sortedStarClasses.forEach(({ name, shipCount }) => {
     starShipsClasses.innerHTML += toHtml(name, shipCount);
   });
 })();
